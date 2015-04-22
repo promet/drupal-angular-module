@@ -1,0 +1,118 @@
+<?php
+
+/**
+ * Implements hook_menu().
+ */
+function ang_menu() {
+  $items = array();
+
+  $items['api/node'] = array(
+    'access arguments' => array('access content'),
+    'page callback'     => 'ang_node_api',
+    'page arguments' => array(2),
+    'delivery callback' => 'drupal_json_output'
+  );
+
+  return $items;
+}
+/**
+ * API callback to return nodes in JSON format
+ *
+ * @param $param
+ * @return array
+ */
+function ang_node_api($param) {
+  global $base_url;
+  // If passed param is node id
+  if ($param && is_numeric($param)) {
+    //
+    $url = $base_url . '/' . 'api/articles-detail/' . $param;
+    $request = drupal_http_request($url);
+    $json_response = drupal_json_decode($request->data);
+    $noderesults = $json_response['articles'];
+    if(count($noderesults) == 1) {
+      $node = (object) $noderesults[0];
+    }
+    if(isset($node)) {
+      return array(
+        'nid' => $param,
+        'uid' => $node->uid,
+        'title' => check_plain($node->title),
+        'body' => $node->body,
+        'image' => $node->image,
+      );
+    }
+  }
+  // If there is no passed param
+  else {
+    $url = $base_url . '/' . 'api/articles-listing';
+    $request = drupal_http_request($url);
+    $json_response = drupal_json_decode($request->data);
+    $nodes = $json_response['articles'];
+    return $nodes;
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function ang_theme($existing, $type, $theme, $path) {
+  return array(
+    'angular_listing' => array(
+      'template' => 'angular-listing',
+      'variables' => array(),
+      'path' => drupal_get_path('module','ang') . '/templates',
+    ),
+  );
+}
+
+/**
+ * Implements hook_block_info().
+ */
+function ang_block_info() {
+
+  $blocks['angular_nodes'] = array(
+    'info' => t('Articles listing block'),
+  );
+
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function ang_block_view($delta = '') {
+
+  $block = array();
+
+  switch ($delta) {
+    case 'angular_nodes':
+      $block['subject'] = t('Latest nodes');
+      $block['content'] = array(
+        '#theme' => 'angular_listing',
+        '#attached' => array(
+          'js' => array(
+            'https://ajax.googleapis.com/ajax/libs/angularjs/1.2.26/angular.min.js',
+            'https://ajax.googleapis.com/ajax/libs/angularjs/1.2.26/angular-resource.js',
+            drupal_get_path('module', 'ang') . '/lib/ngDialog/ngDialog.min.js',
+            drupal_get_path('module', 'ang') . '/app/ang.js',
+          ),
+          'css' => array(
+            drupal_get_path('module', 'ang') . '/lib/ngDialog/ngDialog.min.css',
+            drupal_get_path('module', 'ang') . '/lib/ngDialog/ngDialog-theme-default.min.css',
+          ),
+        ),
+      );
+      break;
+  }
+
+  return $block;
+}
+
+/**
+ * Implements template_preprocess_angular_listing().
+ */
+function ang_preprocess_angular_listing(&$vars) {
+  // Can stay empty for now.
+}
+

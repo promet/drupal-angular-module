@@ -1,0 +1,14 @@
+name = Articles Listing
+description = View providing json data containing list of articles -- titles, teasers and images
+core = 7.x
+package = NG Drupal Features
+version = 7.x-1.1
+project = articles_listing
+dependencies[] = ct_article
+dependencies[] = ctools
+dependencies[] = views
+dependencies[] = views_json
+features[ctools][] = views:views_default:3.0
+features[features_api][] = api:2
+features[views_view][] = articles_listing
+project path = sites/all/modules/custom/features

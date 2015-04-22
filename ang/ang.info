@@ -1,0 +1,5 @@
+name = Ang
+description = Angular.js example on a Drupal 7 site.
+core = 7.x
+
+dependencies[] = articles_listing

@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Articles Listing feature.
+ */
+
+include_once 'articles_listing.features.inc';
